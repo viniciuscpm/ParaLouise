@@ -79,6 +79,75 @@ const pedidoSlides = [
   }
 ];
 
+const primeiroAnoSlides = [
+  {
+    type: "image",
+    src: "img/primeiro-ano/296405a1-8bb1-4457-b39b-45e5ece0ee75.jpg",
+    alt: "Primeiro ano 01",
+    caption: "Escreva a legenda desta memoria aqui."
+  },
+  {
+    type: "image",
+    src: "img/primeiro-ano/3df65747-2985-4a29-a52d-dfff23ae9e6f.jpg",
+    alt: "Primeiro ano 02",
+    caption: "Escreva a legenda desta memoria aqui."
+  },
+  {
+    type: "image",
+    src: "img/primeiro-ano/85e8af48-bec3-4e2c-a70d-64c52c76aae7.jpg",
+    alt: "Primeiro ano 03",
+    caption: "Escreva a legenda desta memoria aqui."
+  },
+  {
+    type: "image",
+    src: "img/primeiro-ano/94d398ad-98ff-4bbe-99f7-952f95d5225c.jpg",
+    alt: "Primeiro ano 04",
+    caption: "Escreva a legenda desta memoria aqui."
+  },
+  {
+    type: "image",
+    src: "img/primeiro-ano/9fe19800-d19d-4400-ab3b-b1d6b09f7692.jpg",
+    alt: "Primeiro ano 05",
+    caption: "Escreva a legenda desta memoria aqui."
+  },
+  {
+    type: "image",
+    src: "img/primeiro-ano/b78343f1-0105-42cf-a8da-c6f357f1c754.jpg",
+    alt: "Primeiro ano 06",
+    caption: "Escreva a legenda desta memoria aqui."
+  },
+  {
+    type: "image",
+    src: "img/primeiro-ano/img-5639.jpg",
+    alt: "Primeiro ano 07",
+    caption: "Escreva a legenda desta memoria aqui."
+  },
+  {
+    type: "image",
+    src: "img/primeiro-ano/img-6014.jpg",
+    alt: "Primeiro ano 08",
+    caption: "Escreva a legenda desta memoria aqui."
+  },
+  {
+    type: "image",
+    src: "img/primeiro-ano/img-6242.jpg",
+    alt: "Primeiro ano 09",
+    caption: "Escreva a legenda desta memoria aqui."
+  },
+  {
+    type: "image",
+    src: "img/primeiro-ano/img-6816.jpg",
+    alt: "Primeiro ano 10",
+    caption: "Escreva a legenda desta memoria aqui."
+  },
+  {
+    type: "image",
+    src: "img/primeiro-ano/img-7159.jpg",
+    alt: "Primeiro ano 11",
+    caption: "Escreva a legenda desta memoria aqui."
+  }
+];
+
 const fases = [
   {
     id: "pedido-de-namoro",
@@ -97,25 +166,25 @@ const fases = [
     title: "Primeiro Ano: Construção",
     period: "Ano 1",
     description: "A fase clara, mais madura e pronta para receber as memórias do primeiro ano.",
-    thumbnail: "",
+    thumbnail: "img/primeiro-ano/miniatura.jpg",
     music: "",
     theme: "primeiro",
     available: true,
     hasProposalFinal: false,
-    emptyTitle: "Capítulo em construção",
-    emptyText: "Quando você escolher as fotos, legendas e música, este espaço vira o carrossel do primeiro ano de vocês.",
-    slides: []
+    captionsFile: "content/primeiro-ano-legendas.json",
+    slides: primeiroAnoSlides
   },
   {
     id: "segundo-ano",
     title: "Segundo Ano: A Consolidação",
     period: "Ano 2",
     description: "Um futuro azul, moderno e ainda fechado, esperando a história alcançar esse ponto.",
-    thumbnail: "",
+    thumbnail: "img/segundo-ano/miniatura.jpg",
     music: "",
     theme: "segundo",
     available: false,
     hasProposalFinal: false,
+    unavailableMessage: "Essa fase ainda não foi desbloqueada",
     slides: []
   }
 ];
@@ -160,8 +229,7 @@ function renderFases() {
     const card = document.createElement("button");
     card.type = "button";
     card.className = "phase-card";
-    card.disabled = !fase.available;
-    card.setAttribute("aria-label", fase.available ? `Abrir ${fase.title}` : `${fase.title} ainda indisponível`);
+    card.setAttribute("aria-label", fase.available ? `Abrir ${fase.title}` : `${fase.title}: Essa fase ainda não foi desbloqueada`);
 
     if (index === faseSelecionada) {
       card.classList.add("current");
@@ -202,9 +270,12 @@ function renderFases() {
       renderFases();
       scrollToSelectedPhase();
 
-      if (fase.available) {
-        abrirFase(index);
+      if (!fase.available) {
+        mostrarMensagem(fase.unavailableMessage || "Essa fase ainda não foi desbloqueada");
+        return;
       }
+
+      abrirFase(index);
     };
 
     fasesTrack.appendChild(card);
@@ -226,7 +297,7 @@ function moverFase(direction) {
   scrollToSelectedPhase();
 }
 
-function abrirFase(index) {
+async function abrirFase(index) {
   const fase = fases[index];
 
   if (!fase.available) {
@@ -239,8 +310,31 @@ function abrirFase(index) {
   document.getElementById("fasePeriodo").innerText = fase.period;
   document.getElementById("faseTitulo").innerText = fase.title;
   prepararMusica(fase.music);
+  await carregarLegendas(fase);
   atualizarCarrossel();
   showScreen("carrossel");
+}
+
+async function carregarLegendas(fase) {
+  if (!fase.captionsFile) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`${fase.captionsFile}?v=${Date.now()}`);
+    if (!response.ok) {
+      return;
+    }
+
+    const captions = await response.json();
+    captions.forEach((caption, index) => {
+      if (fase.slides[index] && typeof caption === "string") {
+        fase.slides[index].caption = caption;
+      }
+    });
+  } catch (error) {
+    console.warn("Não foi possível carregar as legendas da fase.", error);
+  }
 }
 
 function prepararMusica(src) {
@@ -286,7 +380,7 @@ function atualizarCarrossel() {
 
   const legenda = document.createElement("p");
   legenda.className = "legenda";
-  legenda.innerText = slide.caption;
+  legenda.innerText = slide.caption || "";
   item.appendChild(legenda);
 
   carrossel.appendChild(item);
@@ -354,6 +448,22 @@ function responder(aceitou) {
 
 function voltar() {
   showScreen("pergunta");
+}
+
+function mostrarMensagem(texto) {
+  const antiga = document.querySelector(".toast-message");
+  if (antiga) {
+    antiga.remove();
+  }
+
+  const toast = document.createElement("div");
+  toast.className = "toast-message";
+  toast.innerText = texto;
+  document.body.appendChild(toast);
+
+  window.setTimeout(() => {
+    toast.remove();
+  }, 2600);
 }
 
 document.getElementById("startButton").onclick = mostrarFases;
