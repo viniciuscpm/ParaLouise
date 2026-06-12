@@ -2,38 +2,69 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Para Louise ❤️</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="inicio">
-    <button id="startButton">Clique aqui!</button>
-  </div>
+  <main>
+    <section id="inicio" class="screen active-screen" aria-label="Início">
+      <button id="startButton">Clique aqui!</button>
+    </section>
 
-  <audio id="musica" loop>
-    <source src="audio/best-part.mp3" type="audio/mpeg" />
-    Seu navegador não suporta o áudio.
-  </audio>
+    <section id="fasesContainer" class="screen" aria-label="Fases da nossa história">
+      <div class="memory-shell">
+        <p class="eyebrow">Para Louise</p>
+        <h1>Nosso arquivo de memórias</h1>
+        <p class="intro-text">Do começo simples até tudo que ainda vamos construir.</p>
 
-  <div id="carrosselContainer" style="display: none;">
-    <div id="carrossel"></div>
-    <div class="controls">
-      <button id="prev">⬅️</button>
-      <button id="next">➡️</button>
-    </div>
-  </div>
+        <div class="phase-carousel" aria-label="Carrossel de fases">
+          <button id="fasePrev" class="icon-button" aria-label="Fase anterior">←</button>
+          <div id="fasesTrack" class="fases-track"></div>
+          <button id="faseNext" class="icon-button" aria-label="Próxima fase">→</button>
+        </div>
+      </div>
+    </section>
 
-  <div id="perguntaFinal" style="display: none;">
-    <h2><span>N</span><span>A</span><span>M</span><span>O</span><span>R</span><span>A</span> <span>C</span><span>O</span><span>M</span><span>I</span><span>G</span><span>O</span><span>?</span></h2>
-    <button onclick="responder(true)">Lógico, né</button>
-    <button onclick="responder(false)">Sai fora</button>
-  </div>
+    <audio id="musica" loop>
+      Seu navegador não suporta o áudio.
+    </audio>
 
-  <div id="erroResposta" style="display: none;">
-    <p>❌ Resposta errada, volte e responda de novo.</p>
-    <button onclick="voltar()">Voltar</button>
-  </div>
+    <section id="carrosselContainer" class="screen" aria-label="Carrossel de memórias">
+      <div class="chapter-topbar">
+        <button id="backToFases" class="quiet-button">Voltar às fases</button>
+        <div>
+          <p id="fasePeriodo" class="eyebrow"></p>
+          <h2 id="faseTitulo"></h2>
+        </div>
+      </div>
+
+      <div id="carrossel"></div>
+
+      <div class="controls">
+        <button id="prev" class="icon-button" aria-label="Memória anterior">←</button>
+        <span id="slideCounter" class="slide-counter"></span>
+        <button id="next" class="icon-button" aria-label="Próxima memória">→</button>
+      </div>
+    </section>
+
+    <section id="perguntaFinal" class="screen" aria-label="Pedido de namoro">
+      <div class="proposal-card">
+        <h2><span>N</span><span>A</span><span>M</span><span>O</span><span>R</span><span>A</span> <span>C</span><span>O</span><span>M</span><span>I</span><span>G</span><span>O</span><span>?</span></h2>
+        <div class="proposal-actions">
+          <button onclick="responder(true)">Lógico, né</button>
+          <button onclick="responder(false)">Sai fora</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="erroResposta" class="screen" aria-label="Resposta errada">
+      <div class="proposal-card">
+        <p>❌ Resposta errada, volte e responda de novo.</p>
+        <button onclick="voltar()">Voltar</button>
+      </div>
+    </section>
+  </main>
 
   <script src="script.js"></script>
 </body>
